@@ -1,0 +1,26 @@
+stages:
+    - build
+    - push
+    - deploy
+
+build-job:
+    stage: build
+    script:
+        - echo 'This stage builds a docker image'
+        - docker build -t ecom-app:latest .
+        - docker images
+        - echo 'build completed...!'
+
+push-job:
+    stage: push
+    script:
+        - echo 'This stage pushes the docker image to docker hub...'
+        - docker login -u $DOCKER_UNAME -p $DOCKER_PASSWD
+        - docker tag ecom-app:latest $DOCKER_UNAME/ecom-app:latest
+        - docker push $DOCKER_UNAME/ecom-app:latest
+        - echo 'Docker Image now available in Docker-Hub...'
+
+deploy-job:
+    stage: deploy
+    script:
+        - docker run -d -p 3000:3000 $DOCKER_UNAME/ecom-app:latest
